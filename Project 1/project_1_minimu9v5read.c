@@ -2,7 +2,8 @@
 // Read Pololu MinIMU-9 v5 (LSM6DS33 accel+gyro + LIS3MDL magnetometer)
 // using only /dev/i2c-* (no external libraries).
 #include <errno.h>
-#include <fcntl.h>#include <linux/i2c-dev.h>
+#include <fcntl.h>
+#include <linux/i2c-dev.h>
 #include <linux/i2c.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,7 +24,8 @@
 // LIS3MDL registers
 #define LIS_WHO_AM_I 0x0F
 #define LIS_CTRL_REG1 0x20
-#define LIS_CTRL_REG2 0x21#define LIS_CTRL_REG3 0x22
+#define LIS_CTRL_REG2 0x21
+#define LIS_CTRL_REG3 0x22
 #define LIS_CTRL_REG4 0x23
 #define LIS_CTRL_REG5 0x24
 #define LIS_OUT_X_L
@@ -74,11 +76,13 @@ int main(void)
 	printf("LSM6DS33 WHO_AM_I = 0x%02X (expected 0x69)\n", who);
 	// Configure LSM6DS33
 	// CTRL3_C: BDU=1, IF_INC=1
-	if (i2c_write_reg(fd, ADDR_LSM6DS33, LSM6_CTRL3_C, 0x44) < 0) {
+	if (i2c_write_reg(fd, ADDR_LSM6DS33, LSM6_CTRL3_C, 0x44) < 0) 
+	{
 		die("LSM6DS33 write CTRL3_C failed"); close(fd); return 1;
 	}
 	// CTRL1_XL: 26 Hz, ±2g
-	if (i2c_write_reg(fd, ADDR_LSM6DS33, LSM6_CTRL1_XL, 0x20) < 0) {
+	if (i2c_write_reg(fd, ADDR_LSM6DS33, LSM6_CTRL1_XL, 0x20) < 0) 
+	{
 		die("LSM6DS33 write CTRL1_XL failed"); close(fd); return 1;
 	}
 	// CTRL2_G: 26 Hz, ±500 dps
