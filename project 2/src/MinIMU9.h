@@ -12,6 +12,9 @@ public:
     void readData(float& ax, float& ay, float& az,
                   float& gx, float& gy, float& gz,
                   float& mx, float& my, float& mz);
+                  
+    void calibrateGyroBias(int samples = 300, int delay_us = 5000);
+    void getGyroBias(float& bgx, float& bgy, float& bgz) const;
 
 private:
     CommInterface* bus_ = nullptr;
@@ -25,4 +28,8 @@ private:
     static constexpr float mag_gauss_per_lsb  = 1.0f / 6842.0f; // +/- 4 gauss
 
     static int16_t le16_to_i16(uint8_t lo, uint8_t hi);
+    
+    float bgx_ = 0.0f;
+    float bgy_ = 0.0f;
+    float bgz_ = 0.0f;
 };

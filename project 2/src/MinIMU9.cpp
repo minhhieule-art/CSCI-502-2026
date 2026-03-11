@@ -1,5 +1,5 @@
 #include "MinIMU9.h"
-
+#include <unistd.h>   // usleep
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -59,4 +59,37 @@ void MinIMU9::readData(float& ax, float& ay, float& az,
     mx = le16_to_i16(mbuf[0], mbuf[1]) * mag_gauss_per_lsb;
     my = le16_to_i16(mbuf[2], mbuf[3]) * mag_gauss_per_lsb;
     mz = le16_to_i16(mbuf[4], mbuf[5]) * mag_gauss_per_lsb;
+}
+
+void MinIMU9::calibrateGyroBias(int samples, int delay_us) {
+    float sumx = 0.0f, sumy = 0.0f, sumz = 0.0f;
+
+    // Dummy reads to “warm up” (optional but helps)
+    for (int i = 0; i < 10; i++) {
+        float ax, ay, az, gx, gy, gz, mx, my, mz;
+        readData(ax, ay, az, gx, gy, gz, mx, my, mz);
+        usleep(delay_us);
+    }
+
+    for (int i = 0; i < samples; i++) {
+        float ax, ay, az, gx, gy, gz, mx, my, mz;
+        readData(ax, ay, az, gx, gy, gz, mx, my, mz);
+        sumx += gx;
+        sumy += gy;
+        sumz += gz;
+        usleep(delay_us);
+    }
+
+    bgx_ = sumx / samples;
+    bgy_ = sumy / samples;
+    bgz_ = sumz / samples;
+
+    std::cout << "Gyro bias calibrated (rad/s): "
+              << bgx_ << ", " << bgy_ << ", " << bgz_ << "\n";
+}
+
+void MinIMU9::getGyroBias(float& bgx, float& bgy, float& bgz) const {
+    bgx = bgx_;
+    bgy = bgy_;
+    bgz = bgz_;
 }

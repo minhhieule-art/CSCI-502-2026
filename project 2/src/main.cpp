@@ -51,8 +51,19 @@ static void idle() {
     std::chrono::duration<float> elapsed = currentTime - lastTime;
     float dt = elapsed.count();
     lastTime = currentTime;
+    
+    if (dt < 0.001f) dt = 0.001f;
+    if (dt > 0.02f) dt = 0.02f;
 
     imu->readData(ax, ay, az, gx, gy, gz, mx, my, mz);
+    
+    float bgx,bgy,bgz;
+    imu->getGyroBias(bgx,bgy,bgz);
+    
+    gx -= bgx;
+    gy -= bgy;
+    gz -= bgz;
+    
     filter->update(gx, gy, gz, ax, ay, az, mx, my, mz, dt);
 
     glutPostRedisplay();
@@ -76,8 +87,14 @@ int main(int argc, char** argv) {
     i2cBus = new I2CBus("/dev/i2c-1");
     imu = new MinIMU9(i2cBus);
     filter = new MadgwickFilter();
+    
+    
+    filter->beta = 0.03f;
 
     imu->init();
+    
+    imu->calibrateGyroBias(200,5000);
+    
     lastTime = std::chrono::steady_clock::now();
 
     glutInit(&argc, argv);
